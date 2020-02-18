@@ -1,8 +1,8 @@
 <?php
-
+//echo 'sqlite:' . __DIR__ . '/../data/base.db';exit;
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'sqlite:/Users/macbook/develop/copy-letters/data/base.db',
+    'dsn' => 'sqlite:' . __DIR__ .'/../data/base.db',
     'username' => '',
     'password' => '',
     'charset' => 'utf8',

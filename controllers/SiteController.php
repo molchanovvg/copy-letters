@@ -30,7 +30,7 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionCopy()
+    public function actionCopy(): string
     {
         $copyForm = new CopyForm();
 
@@ -48,5 +48,29 @@ class SiteController extends Controller
         return $this->render('copy', [
             'copyForm' => $copyForm
         ]);
+    }
+
+    public function actionTest()
+    {
+        $path = "C:\\test\\Сургут\\Иванов.xlsx";
+        $pathToExcel = "C:\\Program Files\\Microsoft Office 15\\root\\office15\\excel.exe -C:\test\Сургут\Иванов.xlsx";
+//        $STDOUT = fopen('application.log', 'wb');
+//        $STDERR = fopen('error.log', 'wb');
+       // passthru(escapeshellcmd($path));
+
+
+        $descriptorspec = array(
+            0 => array("pipe", "r"),  // stdin - канал, из которого дочерний процесс будет читать
+            1 => array("pipe", "w"),  // stdout - канал, в который дочерний процесс будет записывать
+            2 => array("file", sys_get_temp_dir() . "/error-output.txt", "a") // stderr - файл для записи
+        );
+
+        $cwd = sys_get_temp_dir();
+        $env = array('some_option' => 'aeiou');
+
+        $process = proc_open($path, $descriptorspec, $pipes, null, null, ['bypass_shell']);
+////
+//        var_dump($process);
+       // echo exec($path);
     }
 }

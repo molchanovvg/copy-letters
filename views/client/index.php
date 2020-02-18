@@ -27,7 +27,10 @@ $this->params['breadcrumbs'][] = $this->title;
             'header_in_file',
             'is_active:boolean',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{update} {delete}'
+            ],
         ],
     ]); ?>
 
