@@ -40,8 +40,8 @@ class Flights extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'is_active' => 'Is Active',
+            'title' => 'Наименование',
+            'is_active' => 'Отображать в панели',
         ];
     }
 }

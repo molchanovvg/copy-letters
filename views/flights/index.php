@@ -6,15 +6,12 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Flights';
+$this->title = 'Рейсы';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="flights-index">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
-        <?= Html::a('Create Flights', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Добавить рейс', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -22,7 +19,6 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
 
             'id',
             'title',

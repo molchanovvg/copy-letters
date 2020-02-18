@@ -7,6 +7,7 @@ use app\widgets\Alert;
 use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
+use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
 
@@ -38,21 +39,18 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
-            ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post')
-                . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
-                    ['class' => 'btn btn-link logout']
-                )
-                . Html::endForm()
-                . '</li>'
-            )
+            ['label' => 'Копирование', 'url' => ['/site/copy']],
+            [
+                'label' => 'Справочники',
+                'url' => [''],
+                'options' => ['class' => 'dropdown'],
+                'template' => '<a href="{url}" class="url-class">{label}</a>',
+                'items' => [
+                    ['label' => 'Клиенты', 'url' => ['client/index']],
+                    ['label' => 'Рейсы', 'url' => ['flights/index']],
+                    ['label' => 'Настройки', 'url' => ['settings/index']],
+                ],
+            ],
         ],
     ]);
     NavBar::end();
@@ -60,6 +58,10 @@ AppAsset::register($this);
 
     <div class="container">
         <?= Breadcrumbs::widget([
+            'homeLink' => [
+                'label' => 'Панель копирования',
+                'url' => Url::to('/site/copy'),
+            ],
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
         ]) ?>
         <?= Alert::widget() ?>
@@ -69,8 +71,6 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
-
         <p class="pull-right"><?= Yii::powered() ?></p>
     </div>
 </footer>

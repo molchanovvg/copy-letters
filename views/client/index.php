@@ -6,15 +6,12 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Clients';
+$this->title = 'Клиенты';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="client-index">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
-        <?= Html::a('Create Client', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Добавить', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -22,14 +19,13 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
 
             'id',
             'title',
             'title_dir',
             'title_file',
             'header_in_file',
-            //'is_active:boolean',
+            'is_active:boolean',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

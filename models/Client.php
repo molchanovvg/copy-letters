@@ -43,11 +43,11 @@ class Client extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'title_dir' => 'Title Dir',
-            'title_file' => 'Title File',
-            'header_in_file' => 'Header In File',
-            'is_active' => 'Is Active',
+            'title' => 'Наименование для списка',
+            'title_dir' => 'Наименование для каталога',
+            'title_file' => 'Наименование файла',
+            'header_in_file' => 'Наименование в файле',
+            'is_active' => 'Отображать в списке',
         ];
     }
 }

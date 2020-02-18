@@ -14,6 +14,15 @@ use Yii;
  */
 class Settings extends \yii\db\ActiveRecord
 {
+    public CONST WORK_DIR = 'work-dir';
+
+    public static $settingKeyList = [
+        self::WORK_DIR => [
+            'id' => self::WORK_DIR,
+            'title' => 'Рабочий каталог'
+        ],
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -40,9 +49,9 @@ class Settings extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'label' => 'Label',
-            'value' => 'Value',
+            'title' => 'Наименование',
+            'label' => 'Ключ',
+            'value' => 'Значение',
         ];
     }
 }

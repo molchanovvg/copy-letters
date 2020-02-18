@@ -15,21 +15,6 @@ use yii\filters\VerbFilter;
 class SettingsController extends Controller
 {
     /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
-    /**
      * Lists all Settings models.
      * @return mixed
      */
@@ -67,7 +52,7 @@ class SettingsController extends Controller
         $model = new Settings();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['index']);
         }
 
         return $this->render('create', [

@@ -1,38 +1,39 @@
 <?php
 
+use app\models\Settings;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
-/* @var $this yii\web\View */
-/* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Settings';
+/* @var yii\web\View $this */
+/* @var ActiveDataProvider $dataProvider */
+
+$this->title = 'Настройки';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="settings-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Settings', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Добавить настройку', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
-
-    <?php Pjax::begin(); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
 
             'id',
             'title',
             'label',
             'value',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{update} {delete}'
+            ],
         ],
     ]); ?>
 
-    <?php Pjax::end(); ?>
 
 </div>
