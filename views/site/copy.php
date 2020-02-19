@@ -1,5 +1,8 @@
 <?php
 
+use app\models\domains\ClientLetter;
+use yii\grid\ActionColumn;
+
 $this->title = 'Копирование писем';
 
 use app\models\Client;
@@ -7,11 +10,28 @@ use app\models\Flights;
 use app\models\forms\CopyForm;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
+use yii\data\ArrayDataProvider;
+use yii\grid\GridView;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var CopyForm $copyForm */
+/* @var ArrayDataProvider $dataProvider */
+
+$gridColumns = [
+    'date',
+    'client_name',
+    [
+        'class' => ActionColumn::class,
+        'template' => '{open}',
+        'buttons' => [
+                'open' => static function (ClientLetter $data) {
+                    return Html::a($data->client->title, \yii\helpers\Url::to(['open-file', 'path' => $data->path]));
+                }
+        ],
+    ],
+];
 ?>
 <div class="site-index">
 
@@ -48,13 +68,17 @@ use yii\widgets\ActiveForm;
         <div class="col-lg-6">
 
             <div class="form-group">
-                <?= Html::submitButton('Скопировать', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
+                <?= Html::submitButton('Скопировать', ['class' => 'btn btn-primary']) ?>
             </div>
             <?php ActiveForm::end(); ?>
 
         </div>
     </div>
     <hr>
-
+    <?= GridView::widget([
+        'summary' => false,
+        'dataProvider' => $dataProvider,
+        'columns' => $gridColumns
+    ]) ?>
 
 </div>

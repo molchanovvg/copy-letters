@@ -3,7 +3,9 @@
 namespace app\controllers;
 
 use app\models\forms\CopyForm;
+use app\services\SearchService;
 use Yii;
+use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -45,12 +47,17 @@ class SiteController extends Controller
                 }
             }
         }
+        $service = new SearchService(Yii::$app->request->get('date'));
+        $arrayDataProvider = new ArrayDataProvider([
+            'allModels' => $service->findByDate(),
+        ]);
         return $this->render('copy', [
-            'copyForm' => $copyForm
+            'copyForm' => $copyForm,
+            'dataProvider' => $arrayDataProvider,
         ]);
     }
 
-    public function actionTest()
+    public function actionOpenFile()
     {
         $path = "C:\\test\\Сургут\\Иванов.xlsx";
         $pathToExcel = "C:\\Program Files\\Microsoft Office 15\\root\\office15\\excel.exe -C:\test\Сургут\Иванов.xlsx";
