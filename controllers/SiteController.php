@@ -35,7 +35,7 @@ class SiteController extends Controller
         $copyForm = new CopyForm();
 
         if ($copyForm->load(Yii::$app->request->post())) {
-            if ($copyForm->copyFiles()) {
+            if ($copyForm->runService()) {
                 foreach ($copyForm->report as $item) {
                     Yii::$app->session->addFlash('success', $item);
                 }
