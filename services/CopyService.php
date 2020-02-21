@@ -2,17 +2,18 @@
 
 namespace app\services;
 
+use app\helpers\MonthTitle;
 use app\models\Client;
 use app\models\Flights;
 use app\models\forms\CopyForm;
 use app\models\Settings;
-use Cassandra\Set;
+use DateTime;
 
 /**
  * Class CopyService
  * @package app\services
  */
-class CopyService
+class CopyService extends BaseFileService
 {
     /* @var Client $client */
     private $client;
@@ -23,11 +24,11 @@ class CopyService
     /* @var string $flightDate */
     private $flightDate;
 
-    /* @var Settings $workDir */
-    private $workDir;
 
-    private $report;
-    private $errors;
+    /* @var string $pathToClientWorkDir */
+    private $pathToClientWorkDir;
+
+
 
     /* @var string $source */
     private $source;
@@ -45,42 +46,38 @@ class CopyService
         $this->flight = $flight;
         $this->flightDate = $flightDate;
 
-        $this->workDir = Settings::find()->andWhere(['label' => Settings::WORK_DIR])->one();
+        parent::__construct();
     }
 
+    public function setup(): bool
+    {
+        if ($this->validateBeforeRun()) {
+            $this->pathToClientWorkDir = $this->clientWorkDir($this->client);
+            if (is_dir($this->pathToClientWorkDir)) {
+                return true;
+            }
+            $this->addError('Рабочая директория клиента не существует: ' . $this->pathToClientWorkDir);
+        }
+        return false;
+    }
     /**
      * @return bool
      */
     public function validateBeforeRun(): bool
     {
-        $validWorkDir = $this->workDir instanceof Settings && '' !== $this->workDir->title;
-        if (!$validWorkDir) {
-            $this->addError('Не задана рабочая директория');
-        }
+        $validWorkDir = $this->validateWorkDir();
+
         $validFlightDate = '' !== $this->flightDate;
-        if (!$validWorkDir) {
+        if (!$validFlightDate) {
             $this->addError('Не задана дата рейса');
         }
 
-        return $validWorkDir && $validFlightDate;
-    }
+        $validClient = null !== $this->client && $this->client->validate();
+        if (!$validClient) {
+            $this->addError('В клиенте не заданы поля');
+        }
 
-    public function getReport()
-    {
-        return $this->report;
-    }
-
-    /**
-     * @param $error
-     */
-    private function addError(string $error): void
-    {
-        $this->errors[] = $error;
-    }
-
-    public function getErrors()
-    {
-        return $this->errors;
+        return $validWorkDir && $validFlightDate && $validClient;
     }
 
     /**
@@ -88,13 +85,13 @@ class CopyService
      */
     public function copyFile(): bool
     {
-        $pathToClientWorkDir = $this->workDir->title . DIRECTORY_SEPARATOR . $this->client->title_dir;
-
         // 1 этап - определить последний файл, для этого:
-        $source = $this->findLastFile($pathToClientWorkDir);
+        $source = $this->findLastFile($this->pathToClientWorkDir);
+        $this->report[] = 'Найден ' . $source;
 
         // 2 - этап создание пути для копирования
-        $new = $this->defineNewPath();
+        $new = $this->defineNewPath($this->pathToClientWorkDir);
+        $this->report[] = 'Сформирован ' . $new;
 
         // скопировать !
         if ($this->copy($source, $new)) {
@@ -104,55 +101,39 @@ class CopyService
         return false;
     }
 
-
-    private function findLastFile(string $clientWorkDir)
+    private function defineNewPath(string $clientWorkDir)
     {
-        // проверить существование каталога клиента
-        if (!is_dir($clientWorkDir)) {
-            $this->addError('Каталог клиента не найден: ' . $clientWorkDir);
-            return false;
-        }
+        $date = new DateTime($this->flightDate);
+        $yearPart = $date->format('Y') . ' г';
+        $monthPart = $date->format('m') . '.' . $date->format('y') . ' (' . MonthTitle::get($date->format('m')) . ')';
 
-        // найти последний год
-        $yearsDir = array_diff(scandir($clientWorkDir, SCANDIR_SORT_DESCENDING), ['..', '.']);
-        if ($yearsDir === []) {
-            $this->addError('В рабочем каталоге клиента нет файлов-источников');
-            return false;
-        }
-        $clientWorkDirWithYear = $clientWorkDir . DIRECTORY_SEPARATOR . array_unshift($yearsDir);
-        // найти последний месяц
-        $monthsDir = array_diff(scandir($clientWorkDirWithYear, SCANDIR_SORT_DESCENDING), ['..', '.']);
-
-        $clientWorkDirWithYearMonth = $clientWorkDirWithYear . DIRECTORY_SEPARATOR . array_unshift($monthsDir);
-
-        // найти последний файл
-        $fileList = array_diff(scandir($clientWorkDirWithYearMonth, SCANDIR_SORT_DESCENDING), ['..', '.']);
-
-
-        foreach ($fileList as $file) {
-
-        }
-
-
-        // запомнить, как источник копирования
-        return '123';
-    }
-
-    private function defineNewPath()
-    {
         // проверить год
-
+        $clientWorkDirWithYear = $clientWorkDir . DIRECTORY_SEPARATOR . $yearPart;
+        if (!file_exists($clientWorkDirWithYear)) {
+            if (!mkdir($clientWorkDirWithYear) && !is_dir($clientWorkDirWithYear)) {
+                $this->addError('Не удалось создать директорию: ' . $clientWorkDirWithYear);
+                return false;
+            }
+        }
         // проверить месяц
+        $clientWorkDirWithYearMonth = $clientWorkDirWithYear . DIRECTORY_SEPARATOR . $monthPart;
+        if (!file_exists($clientWorkDirWithYearMonth)) {
+            if (!mkdir($clientWorkDirWithYearMonth) && !is_dir($clientWorkDirWithYearMonth)) {
+                $this->addError('Не удалось создать директорию: ' . $clientWorkDirWithYearMonth);
+                return false;
+            }
+        }
 
         // сгенерить имя файла
+        $newFileName = $this->client->title_file . ' ' . $date->format('d.m.y') . ' ' . $this->flight->title . '.xlsx';
 
-        return '123';
+        return $clientWorkDirWithYearMonth . DIRECTORY_SEPARATOR . $newFileName;
     }
 
-    private function copy($source, $new)
+
+    private function copy($source, $new): bool
     {
-        // copy
-        return true;
+        return copy($source, $new);
     }
 
 

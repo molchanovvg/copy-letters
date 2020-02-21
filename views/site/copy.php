@@ -1,6 +1,6 @@
 <?php
 
-use app\models\domains\ClientLetter;
+use app\models\domains\SearchItem;
 use yii\grid\ActionColumn;
 
 $this->title = 'Копирование писем';
@@ -26,7 +26,7 @@ $gridColumns = [
         'class' => ActionColumn::class,
         'template' => '{open}',
         'buttons' => [
-                'open' => static function (ClientLetter $data) {
+                'open' => static function (SearchItem $data) {
                     return Html::a($data->client->title, \yii\helpers\Url::to(['open-file', 'path' => $data->path]));
                 }
         ],
@@ -50,7 +50,7 @@ $gridColumns = [
         <div class="col-lg-6">
             <?= $form->field($copyForm, 'flightDate')->widget(DatePicker::class, [
                 'type' => DatePicker::TYPE_COMPONENT_APPEND,
-                'value' => $copyForm->flightDate,
+                'value' => $copyForm->flightDate !=null ? $copyForm->flightDate : date('yyyy-mm-dd'),
                 'pluginOptions' => [
                     'format' => 'yyyy-mm-dd',
                     'autoclose' => true,

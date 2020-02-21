@@ -23,12 +23,11 @@ class CopyForm extends Model
     public function rules()
     {
         return [
-            [['client', 'flight'], 'required'],
+            [['clientId', 'flightId'], 'required'],
             [['flightDate'], 'string'],
-            [['clientList'], 'integer'],
             [['flightDate'], 'date', 'format' => 'php:Y-m-d'],
             [
-                ['clienId'],
+                ['clientId'],
                 'exist',
                 'skipOnError' => true,
                 'targetClass' => Client::class,
@@ -70,11 +69,11 @@ class CopyForm extends Model
 
             $service = new CopyService($client, $flight, $this->flightDate);
 
-            if ($service->validateBeforeRun() && $service->copyFile()) {
+            if ($service->setup() && $service->copyFile()) {
                 $this->report = $service->getReport();
                 return true;
             }
-            $this->errors = $service->getErrors();
+            $this->addErrors($service->getErrors());
         }
         return false;
     }

@@ -4,29 +4,22 @@
 namespace app\models\domains;
 
 
-use app\models\Client;
-
-/**
- * Class ClientLetter
- * @package app\models\domains
- */
 class ClientLetter
 {
-    public $date;
-    /** @var Client $client */
-    public $client;
     public $path;
+    public $date;
 
-    /**
-     * ClientLetter constructor.
-     * @param $date
-     * @param $client
-     * @param $path
-     */
-    public function __construct($date, $client, $path)
+    public function __construct($path, $client)
     {
-        $this->date = $date;
-        $this->client = $client;
         $this->path = $path;
+        $fileName = basename($path);
+        $onlyDateFileName = str_replace($client->title_file . ' ', '', $fileName);
+        $dateInFileName = substr($onlyDateFileName, 0, 8);
+        $this->date = $dateInFileName;
+    }
+
+    public function validate(): bool
+    {
+        return is_dir($this->path) && $this->date !== '' && $this->date !== null;
     }
 }

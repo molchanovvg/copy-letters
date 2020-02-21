@@ -59,17 +59,28 @@ class Alert extends \yii\bootstrap\Widget
             }
 
             foreach ((array) $flash as $i => $message) {
-                echo \yii\bootstrap\Alert::widget([
-                    'body' => $message,
-                    'closeButton' => $this->closeButton,
-                    'options' => array_merge($this->options, [
-                        'id' => $this->getId() . '-' . $type . '-' . $i,
-                        'class' => $this->alertTypes[$type] . $appendClass,
-                    ]),
-                ]);
+                if (is_array($message)) {
+                    foreach ($message as $l => $subMessage) {
+                        $this->renderAlert($l, $subMessage, $type, $appendClass);
+                    }
+                } else {
+                    $this->renderAlert($i, $message, $type, $appendClass);
+                }
             }
 
             $session->removeFlash($type);
         }
+    }
+
+    private function renderAlert($i, $message, $type, $appendClass): void
+    {
+        echo \yii\bootstrap\Alert::widget([
+            'body' => $message,
+            'closeButton' => $this->closeButton,
+            'options' => array_merge($this->options, [
+                'id' => $this->getId() . '-' . $type . '-' . $i,
+                'class' => $this->alertTypes[$type] . $appendClass,
+            ]),
+        ]);
     }
 }

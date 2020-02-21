@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\models\forms\CopyForm;
-use app\services\SearchService;
+use app\services\ClientLetterSearch;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
@@ -47,9 +47,9 @@ class SiteController extends Controller
                 }
             }
         }
-        $service = new SearchService(Yii::$app->request->get('date'));
+        $search = new ClientLetterSearch();
         $arrayDataProvider = new ArrayDataProvider([
-            'allModels' => $service->findByDate(),
+            'allModels' => $search->getLastPrevLetterList(),
         ]);
         return $this->render('copy', [
             'copyForm' => $copyForm,
