@@ -1,6 +1,5 @@
 <?php
 
-
 namespace app\models\domains;
 
 
@@ -12,8 +11,6 @@ use app\models\Client;
  */
 class SearchItem
 {
-    public $date;
-
     /** @var Client $client */
     public $client;
 
@@ -35,8 +32,11 @@ class SearchItem
         $this->prev = new ClientLetter($config['prevFile'], $this->client);
     }
 
-    public function validate()
+    /**
+     * @return bool
+     */
+    public function validate(): bool
     {
-        return $this->client->validate() && $this->last->validate() && $this->prev->validate();
+        return $this->client->validate() && $this->last->validate() ;//;&& $this->prev->validate();
     }
 }

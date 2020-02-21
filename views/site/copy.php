@@ -14,21 +14,26 @@ use yii\data\ArrayDataProvider;
 use yii\grid\GridView;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
 use yii\widgets\ActiveForm;
 
 /* @var CopyForm $copyForm */
 /* @var ArrayDataProvider $dataProvider */
+/* @var View $this */
 
 $gridColumns = [
-    'date',
-    'client_name',
+    'client.title',
     [
         'class' => ActionColumn::class,
-        'template' => '{open}',
+        'template' => '{last} {prev}',
         'buttons' => [
-                'open' => static function (SearchItem $data) {
-                    return Html::a($data->client->title, \yii\helpers\Url::to(['open-file', 'path' => $data->path]));
-                }
+                'last' => static function ($url, SearchItem $data) {
+                    return Html::a($data->last->date, Url::to(['open-file', 'path' => $data->last->path]), ['class' => 'btn btn-default']);
+                },
+//                'prev' => static function (SearchItem $data) {
+//                    return Html::a($data->prev->date, Url::to(['open-file', 'path' => $data->prev->path]));
+//                }
         ],
     ],
 ];
@@ -50,7 +55,7 @@ $gridColumns = [
         <div class="col-lg-6">
             <?= $form->field($copyForm, 'flightDate')->widget(DatePicker::class, [
                 'type' => DatePicker::TYPE_COMPONENT_APPEND,
-                'value' => $copyForm->flightDate !=null ? $copyForm->flightDate : date('yyyy-mm-dd'),
+                'value' => $copyForm->flightDate ?? date('yyyy-mm-dd'),
                 'pluginOptions' => [
                     'format' => 'yyyy-mm-dd',
                     'autoclose' => true,
@@ -78,7 +83,8 @@ $gridColumns = [
     <?= GridView::widget([
         'summary' => false,
         'dataProvider' => $dataProvider,
-        'columns' => $gridColumns
+        'columns' => $gridColumns,
+        'showHeader'=> false,
     ]) ?>
 
 </div>

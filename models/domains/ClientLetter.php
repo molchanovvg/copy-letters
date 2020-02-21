@@ -4,12 +4,26 @@
 namespace app\models\domains;
 
 
+use app\models\Client;
+
+/**
+ * Class ClientLetter
+ * @package app\models\domains
+ */
 class ClientLetter
 {
+    /** @var string $path */
     public $path;
+
+    /** @var string $date */
     public $date;
 
-    public function __construct($path, $client)
+    /**
+     * ClientLetter constructor.
+     * @param $path
+     * @param $client
+     */
+    public function __construct(string $path, Client $client)
     {
         $this->path = $path;
         $fileName = basename($path);
@@ -20,6 +34,6 @@ class ClientLetter
 
     public function validate(): bool
     {
-        return is_dir($this->path) && $this->date !== '' && $this->date !== null;
+        return file_exists($this->path) && '' !== $this->date && null !== $this->date;
     }
 }

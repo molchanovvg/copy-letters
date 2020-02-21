@@ -2,8 +2,8 @@
 
 use yii\helpers\Html;
 
-/* @var $this yii\web\View */
-/* @var $model app\models\Settings */
+/* @var yii\web\View $this */
+/* @var app\models\Settings $model */
 
 $this->title = 'Обновить настройку: ' . $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Настройки', 'url' => ['index']];

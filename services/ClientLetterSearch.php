@@ -11,7 +11,7 @@ use DateTime;
 use function is_array;
 
 /**
- * Class SearchService
+ * Class ClientLetterSearch
  * @package app\services
  */
 class ClientLetterSearch extends BaseFileService
@@ -30,14 +30,18 @@ class ClientLetterSearch extends BaseFileService
                 'prevFile' => $this->getPrevFile($client),
             ];
             $searchItem = new SearchItem($config);
+
             if ($searchItem->validate()) {
                 $output[] = $searchItem;
             }
-
         }
         return $output;
     }
 
+    /**
+     * @param Client $client
+     * @return bool|string
+     */
     protected function getLastFile(Client $client)
     {
         if ($this->validateWorkDir()) {
@@ -47,6 +51,10 @@ class ClientLetterSearch extends BaseFileService
         return false;
     }
 
+    /**
+     * @param Client $client
+     * @return bool|void
+     */
     protected function getPrevFile(Client $client)
     {
         if ($this->validateWorkDir()) {
@@ -55,18 +63,4 @@ class ClientLetterSearch extends BaseFileService
         }
         return false;
     }
-
-//    /**
-//     * @param Client $client
-//     * @return array|false
-//     */
-//    private function searchOld(Client $client)
-//    {
-//        $yearPart = $this->year;
-//        $monthPart = $this->month;
-//        $filename = $client->title_file;
-//        $date = $this->month . '.' . $this->year;
-//        $matchPattern = $this->workDir . DIRECTORY_SEPARATOR . $yearPart . DIRECTORY_SEPARATOR . $monthPart . DIRECTORY_SEPARATOR . $filename . '*' . $date;
-//        return glob($matchPattern);
-//    }
 }

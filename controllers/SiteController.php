@@ -48,8 +48,9 @@ class SiteController extends Controller
             }
         }
         $search = new ClientLetterSearch();
+        $allModels = $search->getLastPrevLetterList();
         $arrayDataProvider = new ArrayDataProvider([
-            'allModels' => $search->getLastPrevLetterList(),
+            'allModels' => $allModels,
         ]);
         return $this->render('copy', [
             'copyForm' => $copyForm,
@@ -57,9 +58,9 @@ class SiteController extends Controller
         ]);
     }
 
-    public function actionOpenFile()
+    public function actionOpenFile($path)
     {
-        $path = "C:\\test\\Сургут\\Иванов.xlsx";
+       // $path = "C:\\test\\Сургут\\Иванов.xlsx";
         $pathToExcel = "C:\\Program Files\\Microsoft Office 15\\root\\office15\\excel.exe -C:\test\Сургут\Иванов.xlsx";
 //        $STDOUT = fopen('application.log', 'wb');
 //        $STDERR = fopen('error.log', 'wb');
