@@ -23,19 +23,22 @@ use yii\widgets\Pjax;
 /* @var ArrayDataProvider $dataProvider */
 /* @var View $this */
 
-$tmp = $dataProvider->allModels;
-
 $gridColumns = [
-    'client.title',
     [
-        'label' => '',
+        'contentOptions' => ['class' => 'text-center'],
+        'headerOptions' => ['class' => 'text-center'],
+        'value' => 'client.title',
+    ],
+
+    [
+        'attribute' => 'lastFiles',
         //'class' => ActionColumn::class,
         //'template' => '{last}',
         'format' => 'raw',
-        'value' => static function ($url, SearchItem $data) {
+        'value' => static function (SearchItem $data) {
             $output = [];
             foreach ($data->lastFiles as $file) {
-                $output[] =  Html::a($file->date,
+                $output[] = Html::a($file->getTitle(),
                     Url::to(['open-file']),
                     [
                         'class' => 'btn btn-default',
@@ -49,7 +52,6 @@ $gridColumns = [
             }
             return implode('&nbsp;', $output);
         }
-
     ],
 ];
 ?>

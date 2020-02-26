@@ -4,6 +4,8 @@ namespace app\models\domains;
 
 
 use app\models\Client;
+use function array_key_exists;
+use function is_array;
 
 /**
  * Class SearchItem

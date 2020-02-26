@@ -61,18 +61,21 @@ class SiteController extends Controller
         ]);
     }
 
+    /**
+     * @return string|Response
+     */
     public function actionOpenFile()
     {
         $prepareFileToOpen = '';
         $post = Yii::$app->request->post();
-        if (array_key_exists('file', $post) && $post['file'] !== null && $post['file'] !== '') {
+        if (\array_key_exists('file', $post) && null !== $post['file'] && '' !== $post['file']) {
             $prepareFileToOpen = Yii::$app->request->post('file');
         }
 
 
         if (file_exists($prepareFileToOpen)) {
 
-            if (stripos(PHP_OS, 'win') === 0) {
+            if (0 === strncasecmp(PHP_OS, 'win', 3)) {
                 $prepareFileToOpen = '"' . $prepareFileToOpen . '"';
             }
 

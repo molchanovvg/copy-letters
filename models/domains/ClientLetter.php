@@ -5,6 +5,7 @@ namespace app\models\domains;
 
 
 use app\models\Client;
+use function strlen;
 
 /**
  * Class ClientLetter
@@ -18,6 +19,9 @@ class ClientLetter
     /** @var string $date */
     public $date;
 
+    /** @var string $flight */
+    public $flight;
+
     /**
      * ClientLetter constructor.
      * @param $path
@@ -30,10 +34,20 @@ class ClientLetter
         $onlyDateFileName = str_replace($client->title_file . ' ', '', $fileName);
         $dateInFileName = substr($onlyDateFileName, 0, 8);
         $this->date = $dateInFileName;
+        $this->flight = substr($onlyDateFileName, 8, strlen($onlyDateFileName));
     }
 
     public function validate(): bool
     {
         return file_exists($this->path) && '' !== $this->date && null !== $this->date;
     }
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return $this->date . ' ' . $this->flight;
+    }
+
 }

@@ -7,6 +7,7 @@ namespace app\services;
 use app\helpers\MonthTitle;
 use app\models\Client;
 use app\models\Settings;
+use function count;
 
 /**
  * Class BaseFileService
@@ -30,7 +31,7 @@ class BaseFileService
     {
         $this->workDir = Settings::find()->andWhere(['label' => Settings::WORK_DIR])->one();
         $searchDepthCustom = Settings::find()->andWhere(['label' => Settings::SEARCH_DEPTH])->one();
-        $this->searchDepth = $searchDepthCustom !== null ? $searchDepthCustom->value : self::DEFAULT_SEARCH_DEPTH;
+        $this->searchDepth = null !== $searchDepthCustom ? $searchDepthCustom->value : self::DEFAULT_SEARCH_DEPTH;
     }
 
     public function getReport()
@@ -83,37 +84,77 @@ class BaseFileService
 
     /**
      * @param string $clientWorkDir
-     * @return bool|string
+     * @return array|bool
      */
     protected function findLastFile(string $clientWorkDir)
     {
+//        // найти последний год
+//        $yearsDir = array_diff(scandir($clientWorkDir, SCANDIR_SORT_DESCENDING), self::excludeDir);
+//        if ($yearsDir === []) {
+//            $this->addError('В рабочем каталоге клиента нет каталогов по годам: ' . $clientWorkDir);
+//            return false;
+//        }
+//        // while todo
+//        $clientWorkDirWithYear = $clientWorkDir . DIRECTORY_SEPARATOR . array_shift($yearsDir);
+//        // найти последний месяц
+//        $monthsDir = array_diff(scandir($clientWorkDirWithYear, SCANDIR_SORT_DESCENDING), self::excludeDir);
+//        if ($monthsDir === []) {
+//            $this->addError('В рабочем каталоге клиента по годам нет каталогов по месяцам: ' . $clientWorkDirWithYear);
+//            return false;
+//        }
+//
+//        $clientWorkDirWithYearMonth = $clientWorkDirWithYear . DIRECTORY_SEPARATOR . array_shift($monthsDir);
+//
+//        // найти последний файл
+//        $fileList = array_diff(scandir($clientWorkDirWithYearMonth, SCANDIR_SORT_DESCENDING), self::excludeDir);
+//        if ($fileList === []) {
+//            $this->addError('В рабочем каталоге клиента по месяцам нет файлов писем: ' . $clientWorkDirWithYearMonth);
+//            return false;
+//        }
+//
+//        // запомнить, как источник копирования
+//        $lastFile = array_shift($fileList);
+//        return $clientWorkDirWithYearMonth . DIRECTORY_SEPARATOR . $lastFile;
+        // ---
+        $this->searchDepth = 1;
+        $lastFewFiles = [];
+
         // найти последний год
         $yearsDir = array_diff(scandir($clientWorkDir, SCANDIR_SORT_DESCENDING), self::excludeDir);
         if ($yearsDir === []) {
             $this->addError('В рабочем каталоге клиента нет каталогов по годам: ' . $clientWorkDir);
             return false;
         }
-        // while todo
-        $clientWorkDirWithYear = $clientWorkDir . DIRECTORY_SEPARATOR . array_shift($yearsDir);
-        // найти последний месяц
-        $monthsDir = array_diff(scandir($clientWorkDirWithYear, SCANDIR_SORT_DESCENDING), self::excludeDir);
-        if ($monthsDir === []) {
-            $this->addError('В рабочем каталоге клиента по годам нет каталогов по месяцам: ' . $clientWorkDirWithYear);
-            return false;
+
+        while (count($lastFewFiles) < $this->searchDepth && $yearsDir !== []) {
+
+            $clientWorkDirWithYear = $clientWorkDir . DIRECTORY_SEPARATOR . array_shift($yearsDir);
+            // список месяцев в директории года
+            $monthsDir = array_diff(scandir($clientWorkDirWithYear, SCANDIR_SORT_DESCENDING), self::excludeDir);
+            if ($monthsDir === []) {
+                $this->addError('В рабочем каталоге клиента по годам нет каталогов по месяцам: ' . $clientWorkDirWithYear);
+                return false;
+            }
+            while (count($lastFewFiles) < $this->searchDepth && $monthsDir !== []) {
+                $clientWorkDirWithYearMonth = $clientWorkDirWithYear . DIRECTORY_SEPARATOR . array_shift($monthsDir);
+
+                // список файлов в текущей директории месяца
+                $fileList = array_diff(scandir($clientWorkDirWithYearMonth, SCANDIR_SORT_DESCENDING), self::excludeDir);
+                if ($fileList === []) {
+                    // continue;
+                    $this->addError('В рабочем каталоге клиента по месяцам нет файлов писем: ' . $clientWorkDirWithYearMonth);
+                    continue;
+                  //return false;
+                }
+                while (count($lastFewFiles) < $this->searchDepth && $fileList !== []) {
+                    $file = array_shift($fileList);
+                    $lastFewFiles[] = $clientWorkDirWithYearMonth . DIRECTORY_SEPARATOR . $file;
+                }
+            }
         }
 
-        $clientWorkDirWithYearMonth = $clientWorkDirWithYear . DIRECTORY_SEPARATOR . array_shift($monthsDir);
+        return $lastFewFiles;
 
-        // найти последний файл
-        $fileList = array_diff(scandir($clientWorkDirWithYearMonth, SCANDIR_SORT_DESCENDING), self::excludeDir);
-        if ($fileList === []) {
-            $this->addError('В рабочем каталоге клиента по месяцам нет файлов писем: ' . $clientWorkDirWithYearMonth);
-            return false;
-        }
-
-        // запомнить, как источник копирования
-        $lastFile = array_shift($fileList);
-        return $clientWorkDirWithYearMonth . DIRECTORY_SEPARATOR . $lastFile;
     }
 
     /**
@@ -131,7 +172,7 @@ class BaseFileService
             return false;
         }
 
-        while (count($lastFewFiles) <= $this->searchDepth && $yearsDir !== []) {
+        while (count($lastFewFiles) < $this->searchDepth && $yearsDir !== []) {
 
             $clientWorkDirWithYear = $clientWorkDir . DIRECTORY_SEPARATOR . array_shift($yearsDir);
             // список месяцев в директории года
@@ -140,7 +181,7 @@ class BaseFileService
                 $this->addError('В рабочем каталоге клиента по годам нет каталогов по месяцам: ' . $clientWorkDirWithYear);
                 return false;
             }
-            while (count($lastFewFiles) <= $this->searchDepth && $monthsDir !== []) {
+            while (count($lastFewFiles) < $this->searchDepth && $monthsDir !== []) {
                 $clientWorkDirWithYearMonth = $clientWorkDirWithYear . DIRECTORY_SEPARATOR . array_shift($monthsDir);
 
                 // список файлов в текущей директории месяца
@@ -149,7 +190,7 @@ class BaseFileService
                     $this->addError('В рабочем каталоге клиента по месяцам нет файлов писем: ' . $clientWorkDirWithYearMonth);
                     return false;
                 }
-                while (count($lastFewFiles) <= $this->searchDepth && $fileList !== []) {
+                while (count($lastFewFiles) < $this->searchDepth && $fileList !== []) {
                     $file = array_shift($fileList);
                     $lastFewFiles[] = $clientWorkDirWithYearMonth . DIRECTORY_SEPARATOR . $file;
                 }
