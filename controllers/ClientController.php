@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\services\BaseFileService;
+use Faker\Provider\Base;
 use Yii;
 use app\models\Client;
 use yii\data\ActiveDataProvider;
@@ -67,6 +69,14 @@ class ClientController extends Controller
         $model = new Client();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->addFlash('success', "Клиент сохранен: \"{$model->title}\" ");
+
+            $fileService = new BaseFileService();
+            if ($fileService->createClientDir($model)) {
+                Yii::$app->session->addFlash('success', "Каталог создан: {$model->title_dir}");
+            } else {
+                Yii::$app->session->addFlash('error', $fileService->getErrors());
+            }
             return $this->redirect(['index']);
         }
 

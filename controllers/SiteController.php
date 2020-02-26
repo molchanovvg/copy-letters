@@ -52,33 +52,39 @@ class SiteController extends Controller
         $arrayDataProvider = new ArrayDataProvider([
             'allModels' => $allModels,
         ]);
+        if ($search->hasErrors()) {
+            Yii::$app->session->addFlash('error', $search->errors);
+        }
         return $this->render('copy', [
             'copyForm' => $copyForm,
             'dataProvider' => $arrayDataProvider,
         ]);
     }
 
-    public function actionOpenFile($path)
+    public function actionOpenFile()
     {
-       // $path = "C:\\test\\Сургут\\Иванов.xlsx";
-        $pathToExcel = "C:\\Program Files\\Microsoft Office 15\\root\\office15\\excel.exe -C:\test\Сургут\Иванов.xlsx";
-//        $STDOUT = fopen('application.log', 'wb');
-//        $STDERR = fopen('error.log', 'wb');
-       // passthru(escapeshellcmd($path));
+        $prepareFileToOpen = '';
+        $post = Yii::$app->request->post();
+        if (array_key_exists('file', $post) && $post['file'] !== null && $post['file'] !== '') {
+            $prepareFileToOpen = Yii::$app->request->post('file');
+        }
 
 
-        $descriptorspec = array(
-            0 => array("pipe", "r"),  // stdin - канал, из которого дочерний процесс будет читать
-            1 => array("pipe", "w"),  // stdout - канал, в который дочерний процесс будет записывать
-            2 => array("file", sys_get_temp_dir() . "/error-output.txt", "a") // stderr - файл для записи
-        );
+        if (file_exists($prepareFileToOpen)) {
 
-        $cwd = sys_get_temp_dir();
-        $env = array('some_option' => 'aeiou');
+            if (stripos(PHP_OS, 'win') === 0) {
+                $prepareFileToOpen = '"' . $prepareFileToOpen . '"';
+            }
 
-        $process = proc_open($path, $descriptorspec, $pipes, null, null, ['bypass_shell']);
-////
-//        var_dump($process);
-       // echo exec($path);
+            $config = [
+                0 => ['pipe', 'r'],  // stdin - канал, из которого дочерний процесс будет читать
+                1 => ['pipe', 'w'],  // stdout - канал, в который дочерний процесс будет записывать
+                2 => ['file', sys_get_temp_dir() . '/error-output.txt', 'a'] // stderr - файл для записи
+            ];
+            $process = proc_open($prepareFileToOpen, $config, $pipes, null, null, ['bypass_shell']);
+            return '<script>window.close()</script>';
+        }
+        Yii::$app->session->addFlash('error', 'Указанный файл не существует: ' . $prepareFileToOpen);
+        return $this->redirect(['site/copy']);
     }
 }

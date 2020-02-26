@@ -15,11 +15,16 @@ use Yii;
 class Settings extends \yii\db\ActiveRecord
 {
     public CONST WORK_DIR = 'work-dir';
+    public CONST SEARCH_DEPTH = 'search-depth';
 
     public static $settingKeyList = [
         self::WORK_DIR => [
             'id' => self::WORK_DIR,
             'title' => 'Рабочий каталог'
+        ],
+        self::SEARCH_DEPTH => [
+            'id' => self::SEARCH_DEPTH,
+            'title' => 'Глубина поиска'
         ],
     ];
 

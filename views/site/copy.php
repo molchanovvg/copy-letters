@@ -17,24 +17,39 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\View;
 use yii\widgets\ActiveForm;
+use yii\widgets\Pjax;
 
 /* @var CopyForm $copyForm */
 /* @var ArrayDataProvider $dataProvider */
 /* @var View $this */
 
+$tmp = $dataProvider->allModels;
+
 $gridColumns = [
     'client.title',
     [
-        'class' => ActionColumn::class,
-        'template' => '{last} {prev}',
-        'buttons' => [
-                'last' => static function ($url, SearchItem $data) {
-                    return Html::a($data->last->date, Url::to(['open-file', 'path' => $data->last->path]), ['class' => 'btn btn-default']);
-                },
-//                'prev' => static function (SearchItem $data) {
-//                    return Html::a($data->prev->date, Url::to(['open-file', 'path' => $data->prev->path]));
-//                }
-        ],
+        'label' => '',
+        //'class' => ActionColumn::class,
+        //'template' => '{last}',
+        'format' => 'raw',
+        'value' => static function ($url, SearchItem $data) {
+            $output = [];
+            foreach ($data->lastFiles as $file) {
+                $output[] =  Html::a($file->date,
+                    Url::to(['open-file']),
+                    [
+                        'class' => 'btn btn-default',
+                        'target' => '_blank',
+                        'data' => [
+                            'method' => 'post',
+                            'params' => [
+                                'file' => $file->path
+                            ]
+                        ]]);
+            }
+            return implode('&nbsp;', $output);
+        }
+
     ],
 ];
 ?>
@@ -80,11 +95,13 @@ $gridColumns = [
         </div>
     </div>
     <hr>
+
     <?= GridView::widget([
         'summary' => false,
         'dataProvider' => $dataProvider,
         'columns' => $gridColumns,
-        'showHeader'=> false,
+        'showHeader' => false,
     ]) ?>
+
 
 </div>

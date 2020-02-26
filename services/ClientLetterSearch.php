@@ -11,11 +11,12 @@ use DateTime;
 use function is_array;
 
 /**
- * Class ClientLetterSearch
+ * Class SearchService
  * @package app\services
  */
 class ClientLetterSearch extends BaseFileService
 {
+    public $errors = [];
     /**
      * @return array
      */
@@ -26,41 +27,52 @@ class ClientLetterSearch extends BaseFileService
         foreach ($clientList as $client) {
             $config = [
                 'client' => $client,
-                'lastFile' => $this->getLastFile($client),
-                'prevFile' => $this->getPrevFile($client),
+                'lastFiles' => $this->getPrevFiles($client),
             ];
             $searchItem = new SearchItem($config);
-
             if ($searchItem->validate()) {
                 $output[] = $searchItem;
             }
         }
         return $output;
     }
+//
+//    protected function getLastFiles(Client $client)
+//    {
+//        if ($this->validateWorkDir() && $this->validateClientWorkDir($client)) {
+//            $clientWorkDir = $this->clientWorkDir($client);
+//            return $this->findLastFile($clientWorkDir);
+//        }
+//        $this->errors = array_merge($this->getErrors());
+//        return false;
+//    }
 
-    /**
-     * @param Client $client
-     * @return bool|string
-     */
-    protected function getLastFile(Client $client)
+    protected function getPrevFiles(Client $client)
     {
-        if ($this->validateWorkDir()) {
+        if ($this->validateWorkDir() && $this->validateClientWorkDir($client)) {
             $clientWorkDir = $this->clientWorkDir($client);
-            return $this->findLastFile($clientWorkDir);
+            return $this->findPrevFiles($clientWorkDir);
         }
+        $this->errors = array_merge($this->getErrors());
         return false;
     }
 
-    /**
-     * @param Client $client
-     * @return bool|void
-     */
-    protected function getPrevFile(Client $client)
+    public function hasErrors(): bool
     {
-        if ($this->validateWorkDir()) {
-            $clientWorkDir = $this->clientWorkDir($client);
-            return $this->findPrevFile($clientWorkDir);
-        }
-        return false;
+        return $this->errors !== [];
     }
+
+//    /**
+//     * @param Client $client
+//     * @return array|false
+//     */
+//    private function searchOld(Client $client)
+//    {
+//        $yearPart = $this->year;
+//        $monthPart = $this->month;
+//        $filename = $client->title_file;
+//        $date = $this->month . '.' . $this->year;
+//        $matchPattern = $this->workDir . DIRECTORY_SEPARATOR . $yearPart . DIRECTORY_SEPARATOR . $monthPart . DIRECTORY_SEPARATOR . $filename . '*' . $date;
+//        return glob($matchPattern);
+//    }
 }

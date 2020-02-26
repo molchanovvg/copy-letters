@@ -14,12 +14,8 @@ class SearchItem
     /** @var Client $client */
     public $client;
 
-    /** @var ClientLetter $last */
-    public $last;
-
-    /** @var ClientLetter $prev */
-    public $prev;
-
+    /** @var ClientLetter[] $last */
+    public $lastFiles;
 
     /**
      * SearchItem constructor.
@@ -28,8 +24,11 @@ class SearchItem
     public function __construct($config)
     {
         $this->client = $config['client'];
-        $this->last = new ClientLetter($config['lastFile'], $this->client);
-        $this->prev = new ClientLetter($config['prevFile'], $this->client);
+        if (array_key_exists('lastFiles', $config) && is_array($config['lastFiles'])) {
+            foreach ($config['lastFiles'] as $file) {
+                $this->lastFiles[] = new ClientLetter($file, $this->client);
+            }
+        }
     }
 
     /**
@@ -37,6 +36,15 @@ class SearchItem
      */
     public function validate(): bool
     {
-        return $this->client->validate() && $this->last->validate() ;//;&& $this->prev->validate();
+        $validLastFiles = true;
+        if (is_array($this->lastFiles)) {
+            foreach ($this->lastFiles as $lastFile) {
+                $validLastFiles = $validLastFiles && $lastFile->validate();
+            }
+        } else {
+            $validLastFiles = false;
+        }
+
+        return $this->client->validate() && $validLastFiles;
     }
 }
