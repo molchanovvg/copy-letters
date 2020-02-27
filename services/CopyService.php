@@ -190,11 +190,9 @@ class CopyService extends BaseFileService
             return false;
         }
 
-        $cell = 'G1';// LookupRef::cellAddress(1, 7, 1, true); //'R1:C7';
-        $spreadsheet->getActiveSheet()->setCellValue($cell, Yii::$app->formatter->asDate($this->flightDate) . ' (рейс № ' . $this->flight->title . ')');
+        $spreadsheet->getActiveSheet()->setCellValueByColumnAndRow(7, 1, Yii::$app->formatter->asDate($this->flightDate) . ' (рейс № ' . $this->flight->title . ')');
 
-        $cell = 'G3';// LookupRef::cellAddress(1, 7, 1, true); //'R1:C7';
-        $spreadsheet->getActiveSheet()->setCellValue($cell, $this->client->header_in_file);
+        $spreadsheet->getActiveSheet()->setCellValueByColumnAndRow(7, 3, $this->client->header_in_file);
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save($pathToFile);
