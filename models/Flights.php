@@ -9,6 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property string $title
+ * @property string $title_in_file
  * @property bool|null $is_active
  */
 class Flights extends \yii\db\ActiveRecord
@@ -27,9 +28,9 @@ class Flights extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title'], 'required'],
+            [['title', 'title_in_file'], 'required'],
             [['is_active'], 'boolean'],
-            [['title'], 'string', 'max' => 255],
+            [['title', 'title_in_file'], 'string', 'max' => 255],
         ];
     }
 
@@ -40,7 +41,8 @@ class Flights extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Наименование',
+            'title' => 'Краткое наименование',
+            'title_in_file' => 'Наименование в файле',
             'is_active' => 'Отображать в панели',
         ];
     }

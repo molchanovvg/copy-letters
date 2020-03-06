@@ -190,7 +190,7 @@ class CopyService extends BaseFileService
             return false;
         }
 
-        $spreadsheet->getActiveSheet()->setCellValueByColumnAndRow(7, 1, Yii::$app->formatter->asDate($this->flightDate) . ' (рейс № ' . $this->flight->title . ')');
+        $spreadsheet->getActiveSheet()->setCellValueByColumnAndRow(7, 1, Yii::$app->formatter->asDate($this->flightDate) . ' (' . $this->flight->title_in_file . ')');
 
         $spreadsheet->getActiveSheet()->setCellValueByColumnAndRow(7, 3, $this->client->header_in_file);
 

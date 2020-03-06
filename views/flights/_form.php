@@ -14,6 +14,8 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'title_in_file')->textInput(['maxlength' => true]) ?>
+
     <?= $form->field($model, 'is_active')->checkbox() ?>
 
     <div class="form-group">

@@ -22,6 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'title',
+            'title_in_file',
             'is_active:boolean',
 
             [
